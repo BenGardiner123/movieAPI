@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace movieAPI.Controllers
 {
     [Route("api/genres")]
-    public class GenresController
+    public class GenresController: ControllerBase
     {
         private readonly IRepository repository;
 
@@ -22,6 +22,17 @@ namespace movieAPI.Controllers
         public List<Genre> Get()
         {
             return repository.GetGenres();
+        }
+
+        public Genre Get(int Id)
+        {
+           var Genre = repository.GetGenreById(Id);
+            if (Genre == null)
+            {
+                //return NotFound();
+            }
+
+            return Genre;
         }
 
         [HttpPost]
