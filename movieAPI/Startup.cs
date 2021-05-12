@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using movieAPI.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +29,8 @@ namespace movieAPI
         {
 
             services.AddControllers();
+            //adding this here means every time the Irepository gets called i serves the in memory repository
+            services.AddSingleton<IRepository, InMemoryRepository>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "movieAPI", Version = "v1" });
