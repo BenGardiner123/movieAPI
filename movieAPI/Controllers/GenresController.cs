@@ -18,13 +18,16 @@ namespace movieAPI.Controllers
             this.repository = repository;
         }
 
-        [HttpGet]
+        [HttpGet] //api/genres/
+        [HttpGet("list")] //api/genres/list
+        [HttpGet("/allgenres")] //allgenres (the slash drops the route prefix at the top of the controller)
         public List<Genre> Get()
         {
             return repository.GetGenres();
         }
 
-        public Genre Get(int Id)
+        [HttpGet("{id: int }/{param2= Ben}")]
+        public Genre Getexample(int Id)
         {
            var Genre = repository.GetGenreById(Id);
             if (Genre == null)
@@ -35,7 +38,7 @@ namespace movieAPI.Controllers
             return Genre;
         }
 
-        [HttpPost]
+        [HttpPut]
         public void Put()
         {
 
