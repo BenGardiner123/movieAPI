@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using movieAPI.Entites;
 using movieAPI.Services;
 using System;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 namespace movieAPI.Controllers
 {
     [Route("api/genres")]
+    [ApiController]
     public class GenresController: ControllerBase
     {
         private readonly IRepository repository;
@@ -26,10 +28,15 @@ namespace movieAPI.Controllers
             return await repository.GetGenres();
         }
 
-        [HttpGet("{id:int}/{param2= Ben}")]
-        public ActionResult<Genre> Getexample(int Id)
+        [HttpGet("{id:int}")]
+        public ActionResult<Genre> Get(int Id, [BindRequired] string param2)
         {
-           var Genre = repository.GetGenreById(Id);
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            
+            var Genre = repository.GetGenreById(Id);
             if (Genre == null)
             {
                 return NotFound();
@@ -40,13 +47,13 @@ namespace movieAPI.Controllers
 
         [HttpPut]
         //note i fyou use IActionResults you can return ok(somtghing).. but you cant use thetype casting in that action result gives you
-        public ActionResult Put()
+        public ActionResult Put([FromBody]Genre genre)
         {
             return NoContent();
         }
 
         [HttpPost]
-        public ActionResult Post()
+        public ActionResult Post([FromBody]Genre genre)
         {
             return NoContent();
         }
