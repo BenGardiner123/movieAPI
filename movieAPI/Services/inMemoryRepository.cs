@@ -20,8 +20,9 @@ namespace movieAPI.Services
         }
 
 
-        public List<Genre> GetGenres()
-        { 
+        public async Task<List<Genre>> GetGenres()
+        {
+            await Task.Delay(4000);
             return _genres;
         }
 

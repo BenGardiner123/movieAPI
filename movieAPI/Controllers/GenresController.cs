@@ -21,39 +21,40 @@ namespace movieAPI.Controllers
         [HttpGet] //api/genres/
         [HttpGet("list")] //api/genres/list
         [HttpGet("/allgenres")] //allgenres (the slash drops the route prefix at the top of the controller)
-        public List<Genre> Get()
+        public async Task<ActionResult<List<Genre>>> Get()
         {
-            return repository.GetGenres();
+            return await repository.GetGenres();
         }
 
-        [HttpGet("{id: int }/{param2= Ben}")]
-        public Genre Getexample(int Id)
+        [HttpGet("{id:int}/{param2= Ben}")]
+        public ActionResult<Genre> Getexample(int Id)
         {
            var Genre = repository.GetGenreById(Id);
             if (Genre == null)
             {
-                //return NotFound();
+                return NotFound();
             }
 
             return Genre;
         }
 
         [HttpPut]
-        public void Put()
+        //note i fyou use IActionResults you can return ok(somtghing).. but you cant use thetype casting in that action result gives you
+        public ActionResult Put()
         {
-
+            return NoContent();
         }
 
         [HttpPost]
-        public void Post()
+        public ActionResult Post()
         {
-
+            return NoContent();
         }
 
         [HttpDelete]
-        public void Delete()
+        public ActionResult Delete()
         {
-
+            return NoContent();
         }
 
     }
