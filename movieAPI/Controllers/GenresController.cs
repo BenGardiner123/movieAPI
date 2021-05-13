@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Logging;
 using movieAPI.Entites;
 using movieAPI.Services;
 using System;
@@ -14,10 +15,12 @@ namespace movieAPI.Controllers
     public class GenresController: ControllerBase
     {
         private readonly IRepository repository;
+        private readonly ILogger<GenresController> logger;
 
-        public GenresController(IRepository repository)
+        public GenresController(IRepository repository, ILogger<GenresController> logger)
         {
             this.repository = repository;
+            this.logger = logger;
         }
 
         [HttpGet] //api/genres/
@@ -25,20 +28,19 @@ namespace movieAPI.Controllers
         [HttpGet("/allgenres")] //allgenres (the slash drops the route prefix at the top of the controller)
         public async Task<ActionResult<List<Genre>>> Get()
         {
+            logger.LogInformation("getting all the stuff");
             return await repository.GetGenres();
         }
 
         [HttpGet("{id:int}")]
-        public ActionResult<Genre> Get(int Id, [BindRequired] string param2)
+        public ActionResult<Genre> Get(int Id)
         {
-            if(!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            
+            logger.LogDebug("get by ID method executng");
             var Genre = repository.GetGenreById(Id);
+
             if (Genre == null)
             {
+                logger.LogWarning($"Genre with the Id {Id} not found");
                 return NotFound();
             }
 
