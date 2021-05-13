@@ -31,6 +31,8 @@ namespace movieAPI
             services.AddControllers();
             //adding this here means every time the Irepository gets called i serves the in memory repository
             services.AddSingleton<IRepository, InMemoryRepository>();
+            //AddTransient means every time you call you get a new instance
+            //AddScoped means every action inside  1 http request gets access to the changes of the other actions
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "movieAPI", Version = "v1" });
