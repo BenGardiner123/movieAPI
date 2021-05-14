@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
 using movieAPI.Entites;
+using movieAPI.Filters;
 using movieAPI.Services;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace movieAPI.Controllers
     [Route("api/genres")]
     [ApiController]
     //putting this here covers every endpoint in the controller with auth 
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class GenresController: ControllerBase
     {
         private readonly IRepository repository;
@@ -32,8 +33,8 @@ namespace movieAPI.Controllers
         [HttpGet("/allgenres")] //allgenres (the slash drops the route prefix at the top of the controller)
         //this i s awesome - this will set the imter fo r60 secs after the endpoints is hit to return from the
         //cache rather than hitting the endpoint.(cant use with auth)
-        [ResponseCache(Duration = 60)]
-      
+        //[ResponseCache(Duration = 60)]
+        [ServiceFilter(typeof(MyActionFilter))]
         public async Task<ActionResult<List<Genre>>> Get()
         {
             logger.LogInformation("getting all the stuff");
@@ -49,6 +50,7 @@ namespace movieAPI.Controllers
             if (Genre == null)
             {
                 logger.LogWarning($"Genre with the Id {Id} not found");
+               // throw new ApplicationException();
                 return NotFound();
             }
 

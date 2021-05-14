@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using movieAPI.Filters;
 using movieAPI.Services;
 using System;
 using System.Collections.Generic;
@@ -33,11 +34,16 @@ namespace movieAPI
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers();
+            services.AddControllers(options =>
+            {
+                //globally applying our customer exception filter
+                options.Filters.Add(typeof(MyExceptionFilter));
+            });
             services.AddResponseCaching();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
             //adding this here means every time the Irepository gets called i serves the in memory repository
             services.AddSingleton<IRepository, InMemoryRepository>();
+            services.AddTransient<MyActionFilter>();
             //AddTransient means every time you call you get a new instance
             //AddScoped means every action inside  1 http request gets access to the changes of the other actions
             services.AddSwaggerGen(c =>
