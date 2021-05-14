@@ -26,6 +26,9 @@ namespace movieAPI.Controllers
         [HttpGet] //api/genres/
         [HttpGet("list")] //api/genres/list
         [HttpGet("/allgenres")] //allgenres (the slash drops the route prefix at the top of the controller)
+        //this i s awesome - this will set the imter fo r60 secs after the endpoints is hit to return from the
+        //cache rather than hitting the endpoint.
+        [ResponseCache(Duration = 60)]
         public async Task<ActionResult<List<Genre>>> Get()
         {
             logger.LogInformation("getting all the stuff");

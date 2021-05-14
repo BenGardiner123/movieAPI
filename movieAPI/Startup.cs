@@ -33,6 +33,7 @@ namespace movieAPI
         {
 
             services.AddControllers();
+            services.AddResponseCaching();
             //adding this here means every time the Irepository gets called i serves the in memory repository
             services.AddSingleton<IRepository, InMemoryRepository>();
             //AddTransient means every time you call you get a new instance
@@ -91,6 +92,8 @@ namespace movieAPI
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseResponseCaching();
 
             app.UseAuthorization();
 
