@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -34,6 +35,7 @@ namespace movieAPI
 
             services.AddControllers();
             services.AddResponseCaching();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
             //adding this here means every time the Irepository gets called i serves the in memory repository
             services.AddSingleton<IRepository, InMemoryRepository>();
             //AddTransient means every time you call you get a new instance
@@ -95,8 +97,11 @@ namespace movieAPI
 
             app.UseResponseCaching();
 
-            app.UseAuthorization();
+            //has to be in this order to use the jwt
+            app.UseAuthentication();
 
+            app.UseAuthorization();
+            //--------------------------------------
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
