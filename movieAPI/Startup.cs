@@ -11,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using movieAPI.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,6 +19,8 @@ namespace movieAPI
 {
     public class Startup
     {
+       
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -42,13 +45,40 @@ namespace movieAPI
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         //haha the comment is right there but i only just made sense that this is what a pipeline is
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
+            /// using the next belwo indicates we want the next processin the pipline to execute
+            app.Use(async (context, next) =>
+            {
+                using (var swapStream = new MemoryStream())
+                {
+                    var originalResponseBody = context.Response.Body;
+                    context.Response.Body = swapStream;
+
+                    await next.Invoke();
+
+                    swapStream.Seek(0, SeekOrigin.Begin);
+                    string responseBody = new StreamReader(swapStream).ReadToEnd();
+                    swapStream.Seek(0, SeekOrigin.Begin);
+
+                    await swapStream.CopyToAsync(originalResponseBody);
+                    context.Response.Body = originalResponseBody;
+
+                    logger.LogInformation(responseBody);
+                }
+            });
+            
+            
+            
             //if i put this here.. no matter what endpoint i hit the message will always display.
             //its called "short circuiting the pipeline"
-            app.Run(async context =>
+            //using map we map the endpoint to do the contained method everytime
+            app.Map("/map1", (app) =>
             {
-                await context.Response.WriteAsync("im stopping this here");
+                app.Run(async context =>
+                {
+                    await context.Response.WriteAsync("im stopping this here");
+                });
             });
 
             if (env.IsDevelopment())
