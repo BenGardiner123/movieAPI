@@ -1,12 +1,21 @@
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using movieAPI.Filters;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace movieAPI
 {
@@ -24,7 +33,16 @@ namespace movieAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    var frontendURL = Configuration.GetValue<string>("frontEnd_Url");
 
+                    builder.WithOrigins(frontendURL).AllowAnyMethod().AllowAnyHeader();
+                    
+                });
+            });
             services.AddControllers(options =>
             {
                 //globally applying our customer exception filter
@@ -56,6 +74,8 @@ namespace movieAPI
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors();
 
             //has to be in this order to use the jwt
             app.UseAuthentication();
