@@ -46,6 +46,7 @@ namespace movieAPI
                     
                 });
             });
+            services.AddAutoMapper(typeof(Startup));
             services.AddControllers(options =>
             {
                 //globally applying our customer exception filter
