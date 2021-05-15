@@ -8,11 +8,10 @@ using System.Threading.Tasks;
 
 namespace movieAPI
 {
-    public class ApplicationDBContext : DbContext
+    public class ApplicationDbContext : DbContext
     {
-        public ApplicationDBContext([NotNullAttribute] DbContextOptions options) : base(options)
+        public ApplicationDbContext([NotNullAttribute] DbContextOptions options) : base(options)
         {
-
         }
 
         public DbSet<Genre> Genres  { get; set; }
