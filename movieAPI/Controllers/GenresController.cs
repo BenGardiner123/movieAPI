@@ -6,6 +6,7 @@ using movieAPI.DTOs;
 using movieAPI.Entites;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace movieAPI.Controllers
@@ -34,23 +35,33 @@ namespace movieAPI.Controllers
         public async Task<ActionResult<List<GenreDTO>>> Get()
         {
             logger.LogInformation("getting all the stuff");
-            var genres = await _dbContext.Genres.ToListAsync();
+            var genres = await _dbContext.Genres.OrderBy(x => x.Name).ToListAsync();
             return mapper.Map<List<GenreDTO>>(genres);
         
 
         }
 
-        [HttpGet("{id:int}")]
-        public ActionResult<Genre> Get(int Id)
+        [HttpGet("{id:int}", Name="getGenre")]
+        public async Task<ActionResult<GenreDTO>> Get(int Id)
         {
-            throw new NotImplementedException();
+            var genre = await _dbContext.Genres.FirstOrDefaultAsync(x => x.Id == Id);
+
+            if(genre == null)
+            {
+                return NotFound();
+            }
+            return mapper.Map<GenreDTO>(genre);
+
         }
 
-        [HttpPut]
-        //note i fyou use IActionResults you can return ok(somtghing).. but you cant use thetype casting in that action result gives you
-        public ActionResult Put([FromBody]Genre genre)
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put(int id, [FromBody] GenreCreationDTO genreCreationDTO)
         {
-            throw new NotImplementedException();
+            var genre = mapper.Map<Genre>(genreCreationDTO);
+            genre.Id = id;
+            _dbContext.Entry(genre).State = EntityState.Modified;
+            await _dbContext.SaveChangesAsync();
+            return Ok();
         }
 
         [HttpPost]
@@ -59,7 +70,7 @@ namespace movieAPI.Controllers
             var genre = mapper.Map<Genre>(genreCreationDTO);
             _dbContext.Add(genre);
             await _dbContext.SaveChangesAsync();
-            return NoContent();
+            return Ok();
         }
 
         [HttpDelete]
