@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace movieAPI.Helpers
 {
-    interface IFileStorageService
+    public interface IFileStorageService
     {
         Task DeleteFile(string fileRoute, string containerName);
         Task<String> SaveFile(string containerName, IFormFile file);

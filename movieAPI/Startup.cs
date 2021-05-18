@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using movieAPI.Filters;
+using movieAPI.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -47,6 +48,7 @@ namespace movieAPI
                 });
             });
             services.AddAutoMapper(typeof(Startup));
+            services.AddScoped<IFileStorageService, AzureStorageService>();
             services.AddControllers(options =>
             {
                 //globally applying our customer exception filter

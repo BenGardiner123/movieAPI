@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using movieAPI.DTOs;
+using movieAPI.Entites;
+using movieAPI.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +17,16 @@ namespace movieAPI.Controllers
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly IFileStorageService _fileStorageService;
+        private readonly string containerName = "actors";
 
-        public ActorsController(ApplicationDbContext dbContext, IMapper mapper)
+        public ActorsController(ApplicationDbContext dbContext,
+                                IMapper mapper,
+                                IFileStorageService fileStorageService)
         {
             this._dbContext = dbContext;
             this._mapper = mapper;
+            this._fileStorageService = fileStorageService;
         }
 
         [HttpGet]
@@ -49,8 +56,18 @@ namespace movieAPI.Controllers
         [HttpPost]
         public async Task<ActionResult> Post([FromForm] ActorCreationDTO actorCreationDTO)
         {
+            var actor = _mapper.Map<Actor>(actorCreationDTO);
+
+            if(actorCreationDTO.Picture != null)
+            {
+                actor.Picture = await _fileStorageService.SaveFile(containerName, actorCreationDTO.Picture);
+
+            }
+
+            _dbContext.Add(actor);
+            await _dbContext.SaveChangesAsync();
             return NoContent();
-            throw new NotImplementedException();
+
         }
 
         [HttpPut]
