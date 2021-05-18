@@ -14,6 +14,12 @@ namespace movieAPI.Helpers
         {
             CreateMap<GenreDTO, Genre>().ReverseMap();
             CreateMap<GenreCreationDTO, Genre>();
+
+            CreateMap<ActorDTO, Actor>().ReverseMap();
+            CreateMap<ActorCreationDTO, Actor>()
+                //adding this because the fron end is going to send a file not a string
+                //so ignoring for now using this
+                .ForMember(x => x.Picture, options => options.Ignore());
         }
     }
 }
