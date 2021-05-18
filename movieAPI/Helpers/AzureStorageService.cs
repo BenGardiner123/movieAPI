@@ -18,14 +18,27 @@ namespace movieAPI.Helpers
             connectionString = configuration.GetConnectionString("AzureStorageConnection");
         }
      
-        public Task DeleteFile(string fileRoute, string containerName)
+        public async Task DeleteFile(string fileRoute, string containerName)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(fileRoute))
+            {
+                return;
+            }
+
+            // create the blob connection instance
+            var client = new BlobContainerClient(connectionString, containerName);
+            //check if the blob exists and creaete otherwise conenct
+            await client.CreateIfNotExistsAsync();
+            var filename = Path.GetFileName(fileRoute);
+            var blob = client.GetBlobClient(filename);
+            await blob.DeleteIfExistsAsync();
+
         }
 
-        public Task<string> EditFile(string containerName, IFormFile file, string fileRoute)
+        public async Task<string> EditFile(string containerName, IFormFile file, string fileRoute)
         {
-            throw new NotImplementedException();
+            await DeleteFile(fileRoute, containerName);
+            return await SaveFile(containerName, file);
         }
 
         public async Task<string> SaveFile(string containerName, IFormFile file)
