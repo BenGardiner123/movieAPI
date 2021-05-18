@@ -46,6 +46,11 @@ namespace movieAPI.Controllers
 
         }
 
+        [HttpPost]
+        public async Task<ActionResult> Post([FromBody] ActorCreationDTO actorCreationDTO)
+        {
+            throw new NotImplementedException();
+        }
 
     }
 }
