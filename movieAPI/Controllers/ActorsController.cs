@@ -28,16 +28,14 @@ namespace movieAPI.Controllers
             this._mapper = mapper;
             this._fileStorageService = fileStorageService;
         }
-
         [HttpGet]
         public async Task<ActionResult<List<ActorDTO>>> Get([FromQuery] PaginationDTO paginationDTO)
         {
             var queryable = _dbContext.Actors.AsQueryable();
-            await HttpContext.InsertParamatersPaginationInHeaders(queryable);
-            var actors = await queryable.OrderBy(x => x.Name).ToListAsync();
+            await HttpContext.InsertParametersPaginationInHeader(queryable);
+            var actors = await queryable.OrderBy(x => x.Name).Paginate(paginationDTO).ToListAsync();
             return _mapper.Map<List<ActorDTO>>(actors);
-
-
+        
         }
 
         [HttpGet("{id:int}")]
