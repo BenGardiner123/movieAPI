@@ -73,7 +73,7 @@ namespace movieAPI.Controllers
         [HttpPut("{id:int}")]
         public async Task<ActionResult> Put(int id, [FromBody] ActorCreationDTO actorCreationDTO)
         {
-            var actor = _dbContext.Actors.FirstOrDefaultAsync(x => x.Id == id);
+            var actor = await _dbContext.Actors.FirstOrDefaultAsync(x => x.Id == id);
             if (actor == null)
             {
                 return NotFound();
