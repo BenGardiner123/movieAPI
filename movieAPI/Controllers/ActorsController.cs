@@ -52,5 +52,28 @@ namespace movieAPI.Controllers
             throw new NotImplementedException();
         }
 
+        [HttpPut]
+        public async Task<ActionResult> Put([FromBody] ActorCreationDTO actorCreationDTO)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            //check if there is an actor with this id in the db
+            var actor = await _dbContext.Actors.FirstOrDefaultAsync(x => x.Id == id);
+            //if the actor doesnt exist we return couldnt find anything
+            if(actor == null)
+            {
+                return NotFound();
+            }
+            //otherwise we remove the actor with the coresponding id and thensave the changes
+            _dbContext.Remove(actor);
+            await _dbContext.SaveChangesAsync();
+            return NoContent();
+
+        }
+
     }
 }
