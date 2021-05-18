@@ -70,11 +70,24 @@ namespace movieAPI.Controllers
 
         }
 
-        [HttpPut]
-        public async Task<ActionResult> Put([FromBody] ActorCreationDTO actorCreationDTO)
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put(int id, [FromBody] ActorCreationDTO actorCreationDTO)
         {
-           
-            throw new NotImplementedException();
+            var actor = _dbContext.Actors.FirstOrDefaultAsync(x => x.Id == id);
+            if (actor == null)
+            {
+                return NotFound();
+            }
+            actor = _mapper.Map(actorCreationDTO, actor);
+
+            if(actorCreationDTO.Picture != null)
+            {
+                actor.Picture = await _fileStorageService.EditFile(containerName,
+                    actorCreationDTO.Picture, actor.Picture);
+            }
+
+            await _dbContext.SaveChangesAsync();
+            return NoContent();
         }
 
         [HttpDelete("{id:int}")]
@@ -90,6 +103,9 @@ namespace movieAPI.Controllers
             //otherwise we remove the actor with the coresponding id and thensave the changes
             _dbContext.Remove(actor);
             await _dbContext.SaveChangesAsync();
+
+            await _fileStorageService.DeleteFile(actor.Picture, containerName);
+
             return NoContent();
 
         }
