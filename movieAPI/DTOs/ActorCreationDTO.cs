@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -17,6 +18,6 @@ namespace movieAPI.DTOs
         public string Biography { get; set; }
 
         // the picture is a string because we are going to store a URL here
-        //public string Picture { get; set; }
+        public IFormFile Picture { get; set; }
     }
 }
