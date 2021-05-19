@@ -13,6 +13,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using movieAPI.Filters;
 using movieAPI.Helpers;
+using NetTopologySuite;
+using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -36,7 +38,12 @@ namespace movieAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"), 
+            //this intergrates the topology suite with EFCore
+            sqlOptions => sqlOptions.UseNetTopologySuite()));
+            ///the 4326 is something todo with allowing it to work with distances on earth
+            services.AddSingleton<GeometryFactory>(NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326));
+
             services.AddCors(options =>
             {
                 options.AddDefaultPolicy(builder =>

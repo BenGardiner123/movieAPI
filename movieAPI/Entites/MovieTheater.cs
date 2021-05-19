@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NetTopologySuite.Geometries;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -12,5 +13,9 @@ namespace movieAPI.Entites
         [Required]
         [StringLength(maximumLength: 75)]
         public string Name { get; set; }
+
+        public Point Location { get; set; }
+
+
     }
 }
