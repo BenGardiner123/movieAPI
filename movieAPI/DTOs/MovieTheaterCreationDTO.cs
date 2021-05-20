@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace movieAPI.DTOs
 {
-    public class MovieCreationDTO
+    public class MovieTheaterCreationDTO
     {
         public int Id { get; set; }
         [Required]

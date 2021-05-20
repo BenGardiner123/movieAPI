@@ -51,10 +51,54 @@ namespace movieAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post(MovieCreationDTO movieCreationDTO)
+        public async Task<ActionResult> Post(MovieTheaterCreationDTO movieCreationDTO)
         {
+            var movieTheater = _mapper.Map<MovieTheater>(movieCreationDTO);
+            _dbContext.Add(movieTheater);
+            await _dbContext.SaveChangesAsync();
+            return NoContent();
 
         }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put(int id, MovieTheaterCreationDTO movieCreationDTO)
+        {
+            //find the movieTheater with the id == the apram id
+            var movieTheater = await _dbContext.MovieTheaters.FirstOrDefaultAsync(x => x.Id == id);
+
+            //null check
+            if (movieTheater == null)
+            {
+                return NotFound();
+            }
+
+
+            movieTheater = _mapper.Map(movieCreationDTO, movieTheater);
+            await _dbContext.SaveChangesAsync();
+
+            return NoContent();
+
+
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            //samae pattern as in the other controller - find matching record
+            //if nothing found return an actionResult
+            //then remove the record from the instance of dbContext and then push the changes to the DB using EF
+            var movieTheater = await _dbContext.MovieTheaters.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (movieTheater == null)
+            {
+                return NotFound();
+            }
+
+            _dbContext.Remove(movieTheater);
+            await _dbContext.SaveChangesAsync();
+            return NoContent();
+        }
+            
 
     }
 }
