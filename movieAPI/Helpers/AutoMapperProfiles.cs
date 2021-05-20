@@ -30,6 +30,51 @@ namespace movieAPI.Helpers
             CreateMap<MovieTheaterCreationDTO, MovieTheater>()
             .ForMember(x => x.Location, x => x.MapFrom(dto =>
             geometryFactory.CreatePoint(new Coordinate(dto.Longitude, dto.Latitude))));
+
+            CreateMap<MovieCreationDTO, Movie>()
+                .ForMember(x => x.Poster, options => options.Ignore())
+                .ForMember(x => x.MoviesGenres, options => options.MapFrom(MapMoviesGenres))
+                .ForMember(x => x.MoviesTheatersMovies, options => options.MapFrom(MapMovieTheatersMovies))
+                .ForMember(x => x.MoviesActors, options => options.MapFrom(MapMoviesActors));
+        }
+
+        private List<MoviesGenres> MapMoviesGenres(MovieCreationDTO movieCreationDTO, Movie movie)
+        {
+            var result = new List<MoviesGenres>();
+            if (movieCreationDTO.GenreIds == null) { return result; }
+
+            foreach (var id in movieCreationDTO.GenreIds)
+            {
+                result.Add(new MoviesGenres() { GenreId = id });
+            }
+
+            return result; 
+        }
+        private List<MovieTheatersMovies> MapMovieTheatersMovies(MovieCreationDTO movieCreationDTO, Movie movie)
+        {
+            var result = new List<MovieTheatersMovies>();
+
+            if (movieCreationDTO.MovieTheaterIds == null) { return result; }
+
+            foreach (var id in movieCreationDTO.MovieTheaterIds)
+            {
+                result.Add(new MovieTheatersMovies() { MovieTheaterId = id });
+            }
+
+            return result;
+        }
+        private List<MoviesActors> MapMoviesActors(MovieCreationDTO movieCreationDTO, Movie movie)
+        {
+            var result = new List<MoviesActors>();
+
+            if (movieCreationDTO.Actors == null) { return result; }
+
+            foreach (var actors in movieCreationDTO.Actors)
+            {
+                result.Add(new MoviesActors() { ActorId = actors.Id , Character = actors.Character });
+            }
+
+            return result;
         }
     }
 }
