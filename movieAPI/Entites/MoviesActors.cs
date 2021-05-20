@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -9,9 +10,11 @@ namespace movieAPI.Entites
     {
         public int ActorId { get; set; }
         public int MovieId { get; set; }
+        [StringLength(maximumLength: 75)]
         public string Character { get; set; }
-        //this will help order the actors order of appearance in the move detail screen
         public int Order { get; set; }
-        public
+        public Actor Actor { get; set; }
+        public Movie Movie { get; set; }
+
     }
 }

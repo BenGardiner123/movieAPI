@@ -12,11 +12,8 @@ namespace movieAPI.Entites
         [Required]
         [StringLength(120)]
         public string Name { get; set; }
-
         public DateTime DateOfBirth { get; set; }
-
         public string Biography { get; set; }
-
         // the picture is a string because we are going to store a URL here
         public string Picture { get; set; }
 
