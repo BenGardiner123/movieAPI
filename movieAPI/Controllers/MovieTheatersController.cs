@@ -51,6 +51,7 @@ namespace movieAPI.Controllers
             return _mapper.Map<MovieTheaterDTO>(movieTheater);
         }
 
+
         [HttpPost]
         public async Task<ActionResult> Post(MovieTheaterCreationDTO movieCreationDTO)
         {
@@ -58,28 +59,21 @@ namespace movieAPI.Controllers
             _dbContext.Add(movieTheater);
             await _dbContext.SaveChangesAsync();
             return NoContent();
-
         }
 
         [HttpPut("{id:int}")]
         public async Task<ActionResult> Put(int id, MovieTheaterCreationDTO movieCreationDTO)
         {
-            //find the movieTheater with the id == the apram id
             var movieTheater = await _dbContext.MovieTheaters.FirstOrDefaultAsync(x => x.Id == id);
 
-            //null check
             if (movieTheater == null)
             {
                 return NotFound();
             }
 
-
             movieTheater = _mapper.Map(movieCreationDTO, movieTheater);
             await _dbContext.SaveChangesAsync();
-
             return NoContent();
-
-
         }
 
         [HttpDelete("{id:int}")]

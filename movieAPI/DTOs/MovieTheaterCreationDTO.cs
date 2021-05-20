@@ -8,7 +8,7 @@ namespace movieAPI.DTOs
 {
     public class MovieTheaterCreationDTO
     {
-        public int Id { get; set; }
+       
         [Required]
         [StringLength(maximumLength: 75)]
         public string Name { get; set; }
