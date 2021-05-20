@@ -30,7 +30,8 @@ namespace movieAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<List<MovieTheaterDTO>>> Get() {
 
-            var entites = await _dbContext.MovieTheaters.ToListAsync();
+            var entites = await _dbContext.MovieTheaters.OrderBy(x => x.Name).ToListAsync();
+            
             return _mapper.Map<List<MovieTheaterDTO>>(entites);
             
 
