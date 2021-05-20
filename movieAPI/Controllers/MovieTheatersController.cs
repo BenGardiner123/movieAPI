@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using movieAPI.DTOs;
@@ -27,14 +28,33 @@ namespace movieAPI.Controllers
 
 
         [HttpGet]
-        public Task<ActionResult<List<MovieTheaterDTO>>> Get() {
-            var entites = _dbContext.MovieTheaters.ToListAsync();
-            return _dbContext.Map<MovieTheaterDTO>(entites);
-        
+        public async Task<ActionResult<List<MovieTheaterDTO>>> Get() {
+
+            var entites = await _dbContext.MovieTheaters.ToListAsync();
+            return _mapper.Map<List<MovieTheaterDTO>>(entites);
+            
+
         }
 
+        [HttpGet("{id:int}")]
 
+        public async Task<ActionResult<MovieTheaterDTO>> Get(int id)
+        {
+            var movieTheater = await _dbContext.MovieTheaters.FirstOrDefaultAsync( x => x.Id == id);
 
+            if(movieTheater == null)
+            {
+                return NotFound();
+            }
+
+            return _mapper.Map<MovieTheaterDTO>(movieTheater);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Post(MovieCreationDTO movieCreationDTO)
+        {
+
+        }
 
     }
 }

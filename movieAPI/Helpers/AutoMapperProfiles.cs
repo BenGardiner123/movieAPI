@@ -26,6 +26,7 @@ namespace movieAPI.Helpers
                 //expanding out the built in Point attribute because we are not exposing the Point attribute itself
                 .ForMember(x => x.Latitude, dto => dto.MapFrom(prop => prop.Location.Y))
                 .ForMember(x => x.Longitude, dto => dto.MapFrom(prop => prop.Location.X));
+
         }
     }
 }
