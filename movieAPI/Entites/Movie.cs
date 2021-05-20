@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -16,9 +17,10 @@ namespace movieAPI.Entites
         public string Trailer { get; set; }
         public bool InTheaters { get; set; }
         public DateTime ReleaseDate { get; set; }
-        public int Poster { get; set; }
+        public string Poster { get; set; }
         public List<MoviesGenres> MoviesGenres { get; set; }
         public List<MovieTheatersMovies> MoviesTheatersMovies { get; set; }
+        public List<MoviesActors> MoviesActors { get; set; }
 
     }
 }
