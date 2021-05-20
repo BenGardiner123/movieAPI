@@ -1,4 +1,5 @@
 
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -42,7 +43,7 @@ namespace movieAPI
             //this intergrates the topology suite with EFCore
             sqlOptions => sqlOptions.UseNetTopologySuite()));
             ///the 4326 is something todo with allowing it to work with distances on earth
-            services.AddSingleton<GeometryFactory>(NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326));
+            
 
             services.AddCors(options =>
             {
@@ -55,6 +56,12 @@ namespace movieAPI
                 });
             });
             services.AddAutoMapper(typeof(Startup));
+            services.AddSingleton(provider => new MapperConfiguration(config =>
+            {
+                var geometryFactory = provider.GetRequiredService<GeometryFactory>();
+                config.AddProfile(new AutoMapperProfiles(geometryFactory));
+            }).CreateMapper());
+            services.AddSingleton<GeometryFactory>(NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326));
             services.AddScoped<IFileStorageService, AzureStorageService>();
             services.AddControllers(options =>
             {

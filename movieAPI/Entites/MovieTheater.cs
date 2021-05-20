@@ -14,6 +14,8 @@ namespace movieAPI.Entites
         [StringLength(maximumLength: 75)]
         public string Name { get; set; }
 
+        //this Point built in attribute has an x and y in it which when we use automapper we have
+        //to expand out using the ForMember 
         public Point Location { get; set; }
 
 
