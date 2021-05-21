@@ -10,6 +10,6 @@ phases:
       - dotnet publish -c release -o ./build_output movieAPI/movieAPI.csproj
 artifacts:
   files:
-     - ./build_output/**/*
+     - ./**/*
     
    
