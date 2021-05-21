@@ -4,7 +4,7 @@ files:
   - source: movieAPI/build_output
     destination: /home/ubuntu/testmovieAPI
   - source: scripts/virtualhost.conf
-    destination: /home/ec2-user/testmovieAPI
+    destination: /home/ubuntu/testmovieAPI
 hooks:
   ApplicationStop:
     - location: scripts/stop_service
