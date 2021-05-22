@@ -38,11 +38,15 @@ namespace movieAPI.Helpers
                 .ForMember(x => x.MoviesActors, options => options.MapFrom(MapMoviesActors));
         }
 
+
+        //these are custom mapping funtions becuase im assuming that the automapper wont work with the generic lists inside the Movie.cs file.
+        //we pass in the two objects the target and the base
         private List<MoviesGenres> MapMoviesGenres(MovieCreationDTO movieCreationDTO, Movie movie)
         {
             var result = new List<MoviesGenres>();
+            //if the list is empty then there is nothing to map so exit
             if (movieCreationDTO.GenreIds == null) { return result; }
-
+            //otherwise creata a new list then push all the id's into it.
             foreach (var id in movieCreationDTO.GenreIds)
             {
                 result.Add(new MoviesGenres() { GenreId = id });

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using movieAPI.Helpers;
+
+using moviesAPI.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;

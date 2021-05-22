@@ -5,17 +5,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace movieAPI.Helpers
+namespace moviesAPI.Helpers
 {
-    public class TypeBinder<T>: IModelBinder
+    public class TypeBinder<T> : IModelBinder
     {
-      
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
             var propertyName = bindingContext.ModelName;
             var value = bindingContext.ValueProvider.GetValue(propertyName);
 
-            if(value == ValueProviderResult.None)
+            if (value == ValueProviderResult.None)
             {
                 return Task.CompletedTask;
             }
@@ -26,16 +25,13 @@ namespace movieAPI.Helpers
                     var deserializedValue = JsonConvert.DeserializeObject<T>(value.FirstValue);
                     bindingContext.Result = ModelBindingResult.Success(deserializedValue);
                 }
-                catch 
+                catch
                 {
-
                     bindingContext.ModelState.TryAddModelError(propertyName, "The given value is not of the correct type");
                 }
 
                 return Task.CompletedTask;
-               
             }
-
         }
     }
 }

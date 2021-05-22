@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using movieAPI.DTOs;
 using movieAPI.Entites;
 using movieAPI.Helpers;
@@ -10,7 +11,9 @@ using System.Threading.Tasks;
 
 namespace movieAPI.Controllers
 {
-    public class MovieController : ControllerBase
+    [Route("api/movies")]
+    [ApiController]
+    public class MovieController: ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
         private readonly IMapper mapper;
@@ -24,12 +27,25 @@ namespace movieAPI.Controllers
             this.storageService = storageService;
         }
 
+        [HttpGet("PostGet")]
+        public async Task<ActionResult<MoviePostGetDTO>> PostGet()
+        {
+            var movieTheaters = await dbContext.MovieTheaters.OrderBy(x => x.Name).ToListAsync();
+            var genres = await dbContext.Genres.OrderBy(x => x.Name).ToListAsync();
+
+            var movieTheatersDTO = mapper.Map<List<MovieTheaterDTO>>(movieTheaters);
+            var genresDTO = mapper.Map<List<GenreDTO>>(genres);
+
+            return new MoviePostGetDTO() { Genres = genresDTO, MovieTheaters = movieTheatersDTO };
+        }
+
+
         [HttpPost]
         private async Task<ActionResult> Post([FromForm] MovieCreationDTO movieCreationDTO) 
         {
             var movie = mapper.Map<Movie>(movieCreationDTO);
 
-            if (movie.Poster != null)
+            if (movieCreationDTO.Poster != null)
             {
                 movie.Poster = await storageService.SaveFile(container, movieCreationDTO.Poster);
 
@@ -41,6 +57,7 @@ namespace movieAPI.Controllers
             return NoContent(); 
         }
 
+        //this changes the order they are stored in the db
         private void AnnotateActorsOrder(Movie movie)
         {
             if (movie.MoviesActors != null)
