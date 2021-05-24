@@ -10,7 +10,7 @@ namespace movieAPI.DTOs
     public class ActorCreationDTO
     {
         [Required]
-        [StringLength(120)]
+        [MaxLength(120)]
         public string Name { get; set; }
 
         public DateTime DateOfBirth { get; set; }

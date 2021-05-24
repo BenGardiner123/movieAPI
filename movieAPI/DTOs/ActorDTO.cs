@@ -9,12 +9,8 @@ namespace movieAPI.DTOs
     {
         public int Id { get; set; }
         public string Name { get; set; }
-
         public DateTime DateOfBirth { get; set; }
-
         public string Biography { get; set; }
-
-        // the picture is a string because we are going to store a URL here
         public string Picture { get; set; }
     }
 }

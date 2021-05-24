@@ -1,131 +1,122 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using movieAPI;
 using movieAPI.DTOs;
 using movieAPI.Entites;
 using movieAPI.Helpers;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace movieAPI.Controllers
+namespace MoviesAPI.Controllers
 {
     [Route("api/actors")]
     [ApiController]
-    public class ActorsController: ControllerBase
+    public class ActorsController : ControllerBase
     {
-        private readonly ApplicationDbContext _dbContext;
-        private readonly IMapper _mapper;
-        private readonly IFileStorageService _fileStorageService;
+        private readonly ApplicationDbContext context;
+        private readonly IMapper mapper;
+        private readonly IFileStorageService fileStorageService;
         private readonly string containerName = "actors";
 
-        public ActorsController(ApplicationDbContext dbContext,
-                                IMapper mapper,
-                                IFileStorageService fileStorageService)
+        public ActorsController(ApplicationDbContext context, IMapper mapper,
+            IFileStorageService fileStorageService)
         {
-            this._dbContext = dbContext;
-            this._mapper = mapper;
-            this._fileStorageService = fileStorageService;
+            this.context = context;
+            this.mapper = mapper;
+            this.fileStorageService = fileStorageService;
         }
+
         [HttpGet]
         public async Task<ActionResult<List<ActorDTO>>> Get([FromQuery] PaginationDTO paginationDTO)
         {
-            var queryable = _dbContext.Actors.AsQueryable();
+            var queryable = context.Actors.AsQueryable();
             await HttpContext.InsertParametersPaginationInHeader(queryable);
             var actors = await queryable.OrderBy(x => x.Name).Paginate(paginationDTO).ToListAsync();
-            return _mapper.Map<List<ActorDTO>>(actors);
-        
+            return mapper.Map<List<ActorDTO>>(actors);
         }
 
         [HttpPost("searchByName")]
-        public async Task<ActionResult<List<ActorMovieDTO>>> searchByName([FromBody]string name)
+        public async Task<ActionResult<List<ActorsMovieDTO>>> SearchByName([FromBody] string name)
         {
-            if (string.IsNullOrWhiteSpace(name)) { return new List<ActorMovieDTO>(); }
-
-            return await _dbContext.Actors
+            if (string.IsNullOrWhiteSpace(name)) { return new List<ActorsMovieDTO>(); }
+            return await context.Actors
                 .Where(x => x.Name.Contains(name))
                 .OrderBy(x => x.Name)
-                .Select(x => new ActorMovieDTO { Id = x.Id, Name = x.Name, Picture = x.Picture })
+                .Select(x => new ActorsMovieDTO { Id = x.Id, Name = x.Name, Picture = x.Picture })
                 .Take(5)
                 .ToListAsync();
-
         }
-
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<ActorDTO>> Get(int id)
         {
-            var actor = await _dbContext.Actors.FirstOrDefaultAsync( x => x.Id == id);
-
-            if(actor == null)
-            {
-                return NotFound();
-            }
-
-            return _mapper.Map<ActorDTO>(actor);
-
-
-        }
-
-        [HttpPost]
-        public async Task<ActionResult> Post([FromForm] ActorCreationDTO actorCreationDTO)
-        {
-            var actor = _mapper.Map<Actor>(actorCreationDTO);
-
-            if(actorCreationDTO.Picture != null)
-            {
-                actor.Picture = await _fileStorageService.SaveFile(containerName, actorCreationDTO.Picture);
-
-            }
-
-            _dbContext.Add(actor);
-            await _dbContext.SaveChangesAsync();
-            return NoContent();
-
-        }
-
-        [HttpPut("{id:int}")]
-        public async Task<ActionResult> Put(int id, [FromForm] ActorCreationDTO actorCreationDTO)
-        {
-            var actor = await _dbContext.Actors.FirstOrDefaultAsync(x => x.Id == id);
+            var actor = await context.Actors.FirstOrDefaultAsync(x => x.Id == id);
 
             if (actor == null)
             {
                 return NotFound();
             }
 
-            actor = _mapper.Map(actorCreationDTO, actor);
+            return mapper.Map<ActorDTO>(actor);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Post([FromForm] ActorCreationDTO actorCreationDTO)
+        {
+            var actor = mapper.Map<Actor>(actorCreationDTO);
 
             if (actorCreationDTO.Picture != null)
             {
-                actor.Picture = await _fileStorageService.EditFile(containerName,
+                actor.Picture = await fileStorageService.SaveFile(containerName, actorCreationDTO.Picture);
+            }
+
+            context.Add(actor);
+            await context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put(int id, [FromForm] ActorCreationDTO actorCreationDTO)
+        {
+            var actor = await context.Actors.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (actor == null)
+            {
+                return NotFound();
+            }
+
+            actor = mapper.Map(actorCreationDTO, actor);
+
+            if (actorCreationDTO.Picture != null)
+            {
+                actor.Picture = await fileStorageService.EditFile(containerName,
                     actorCreationDTO.Picture, actor.Picture);
             }
 
-            await _dbContext.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return NoContent();
         }
 
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
-            //check if there is an actor with this id in the db
-            var actor = await _dbContext.Actors.FirstOrDefaultAsync(x => x.Id == id);
-            //if the actor doesnt exist we return couldnt find anything
-            if(actor == null)
+            var actor = await context.Actors.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (actor == null)
             {
                 return NotFound();
             }
-            //otherwise we remove the actor with the coresponding id and thensave the changes
-            _dbContext.Remove(actor);
-            await _dbContext.SaveChangesAsync();
 
-            await _fileStorageService.DeleteFile(actor.Picture, containerName);
+            context.Remove(actor);
+            await context.SaveChangesAsync();
+
+            await fileStorageService.DeleteFile(actor.Picture, containerName);
 
             return NoContent();
-
         }
-
     }
 }
