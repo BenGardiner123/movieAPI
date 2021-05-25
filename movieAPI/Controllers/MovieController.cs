@@ -13,7 +13,7 @@ namespace movieAPI.Controllers
 {
     [Route("api/movies")]
     [ApiController]
-    public class MovieController: ControllerBase
+    public class MovieController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
         private readonly IMapper mapper;
@@ -25,6 +25,27 @@ namespace movieAPI.Controllers
             this.dbContext = dbContext;
             this.mapper = mapper;
             this.storageService = storageService;
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<MovieDTO>> Get(int id)
+        {
+            //get all the movies and all the related information where the movie id = param id.
+            //if you go to the custom mapper in automapper class you can see why we need these to be included.
+            var movie = await dbContext.Movies
+                .Include(x => x.MoviesGenres).ThenInclude(x => x.Genre)
+                .Include(x => x.MoviesTheatersMovies).ThenInclude(x => x.MovieTheater)
+                .Include(x => x.MoviesActors).ThenInclude(x => x.Actor)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            //null checkm then return the action result  
+            if(movie == null)
+            {
+                return NotFound();
+            }
+            ///otherwise use automapepr to map the movie to a movie DTO to send back to the front end.
+            var dto = mapper.Map<MovieDTO>(movie);
+            dto.Actors = dto.Actors.OrderBy(x => x.Order).ToList();
+            return dto;
         }
 
         [HttpGet("PostGet")]
@@ -41,21 +62,21 @@ namespace movieAPI.Controllers
 
 
         [HttpPost]
-        private async Task<ActionResult> Post([FromForm] MovieCreationDTO movieCreationDTO) 
+        public async Task<ActionResult<int>> Post([FromForm] MovieCreationDTO movieCreationDTO)
         {
             var movie = mapper.Map<Movie>(movieCreationDTO);
 
             if (movieCreationDTO.Poster != null)
             {
                 movie.Poster = await storageService.SaveFile(container, movieCreationDTO.Poster);
-
             }
 
             AnnotateActorsOrder(movie);
             dbContext.Add(movie);
-            await dbContext.SaveChangesAsync(); 
-            return NoContent(); 
+            await dbContext.SaveChangesAsync();
+            return movie.Id;
         }
+
 
         //this changes the order they are stored in the db
         private void AnnotateActorsOrder(Movie movie)
