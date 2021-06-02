@@ -1,6 +1,7 @@
-﻿using AutoMapper.Configuration;
+﻿
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using movieAPI.DTOs;
 using System;
@@ -59,7 +60,7 @@ namespace movieAPI.Controllers
             [FromBody] UserCredentials userCredentials)
         {
             
-            var result = await signInManager.PasswordSignInAsync(userCredentials.Email, userCredentials.Password
+            var result = await signInManager.PasswordSignInAsync(userCredentials.Email, userCredentials.Password,
                 isPersistent: false, lockoutOnFailure: false);
 
             if (result.Succeeded)
@@ -69,7 +70,7 @@ namespace movieAPI.Controllers
             }
             else
             {
-                return BadRequest(result.Errors);
+                return BadRequest("Incorrect Login");
             }
 
 
