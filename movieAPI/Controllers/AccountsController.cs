@@ -70,6 +70,7 @@ namespace movieAPI.Controllers
             }
             else
             {
+                //dont return anything that might be usefull to a hacker here
                 return BadRequest("Incorrect Login");
             }
 
