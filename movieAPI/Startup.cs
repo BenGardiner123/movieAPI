@@ -93,8 +93,8 @@ namespace movieAPI
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(Configuration["keyjwt"]))
-
+                            Encoding.UTF8.GetBytes(Configuration["keyjwt"])),
+                        ClockSkew = TimeSpan.Zero
                     };
 
                 });
