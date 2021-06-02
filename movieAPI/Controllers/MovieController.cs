@@ -180,14 +180,14 @@ namespace movieAPI.Controllers
                 .Include(x => x.MoviesTheatersMovies)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
-            if(movie == null)
+            if (movie == null)
             {
                 return NotFound();
             }
 
             movie = mapper.Map(movieCreationDTO, movie);
 
-            if(movieCreationDTO.Poster != null)
+            if (movieCreationDTO.Poster != null)
             {
                 movie.Poster = await storageService.EditFile(container, movieCreationDTO.Poster, movie.Poster);
 
@@ -213,6 +213,23 @@ namespace movieAPI.Controllers
                     movie.MoviesActors[i].Order = i;
                 }
             }
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var movie = await dbContext.Movies.FirstOrDefaultAsync(x => x.Id == id);
+            
+            if(movie == null)
+            {
+                return NotFound();
+            }
+
+            dbContext.Remove(movie);
+            await dbContext.SaveChangesAsync();
+            await storageService.DeleteFile(movie.Poster, container);
+            return NoContent();
+            
         }
 
 
