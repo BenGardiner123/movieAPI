@@ -1,5 +1,7 @@
 ﻿
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using movieAPI.DTOs;
@@ -14,6 +16,7 @@ namespace movieAPI.Controllers
 {
     [ApiController]
     [Route("api/movietheaters")]
+   
     public class MovieTheatersController: ControllerBase
     {
         private readonly ApplicationDbContext _dbContext;

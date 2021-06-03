@@ -80,6 +80,7 @@ namespace movieAPI.Controllers
             var user = await userManager.FindByNameAsync(userCredentials.Email);
             var claimsDB = await userManager.GetClaimsAsync(user);
 
+            //this adds the tiotla list of claims associated witht he user in the db to the claims object above, that in turn gets passed into the token below when the token itslef is constructed
             claims.AddRange(claimsDB);
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["keyjwt"]));

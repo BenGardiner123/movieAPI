@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -14,7 +16,7 @@ namespace movieAPI.Controllers
     [Route("api/genres")]
     [ApiController]
     //putting this here covers every endpoint in the controller with auth 
-    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
     public class GenresController: ControllerBase
     {
        
@@ -31,14 +33,13 @@ namespace movieAPI.Controllers
         }
 
         [HttpGet] //api/genres/
-       
+        [AllowAnonymous]
         public async Task<ActionResult<List<GenreDTO>>> Get()
         {
             logger.LogInformation("getting all the stuff");
             var genres = await _dbContext.Genres.OrderBy(x => x.Name).ToListAsync();
             return mapper.Map<List<GenreDTO>>(genres);
-        
-
+       
         }
 
         [HttpGet("{id:int}", Name="getGenre")]

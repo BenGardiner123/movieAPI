@@ -16,7 +16,7 @@ namespace movieAPI.Controllers
 {
     [Route("api/movies")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
     public class MovieController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
@@ -115,6 +115,7 @@ namespace movieAPI.Controllers
 
 
         [HttpGet("filter")]
+        [AllowAnonymous]
         public async Task<ActionResult<List<MovieDTO>>> Filter([FromQuery] FilterMoviesDTO filterMoviesDTO)
         {
             //allows us to build the query line by line
