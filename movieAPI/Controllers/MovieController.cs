@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using movieAPI.DTOs;
@@ -13,18 +16,21 @@ namespace movieAPI.Controllers
 {
     [Route("api/movies")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class MovieController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
         private readonly IMapper mapper;
         private readonly IFileStorageService storageService;
+        private readonly UserManager<IdentityUser> userManager;
         private string container = "movies";
 
-        public MovieController(ApplicationDbContext dbContext, IMapper mapper, IFileStorageService storageService)
+        public MovieController(ApplicationDbContext dbContext, IMapper mapper, IFileStorageService storageService, UserManager<IdentityUser> userManager)
         {
             this.dbContext = dbContext;
             this.mapper = mapper;
             this.storageService = storageService;
+            this.userManager = userManager;
         }
 
         [HttpGet]
@@ -55,6 +61,7 @@ namespace movieAPI.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [AllowAnonymous]
         public async Task<ActionResult<MovieDTO>> Get(int id)
         {
             //get all the movies and all the related information where the movie id = param id.
@@ -69,6 +76,27 @@ namespace movieAPI.Controllers
             {
                 return NotFound();
             }
+
+            var averageVote = 0.0;
+            var userVote = 0;
+
+            //if the program gets inside this if - it means there is votes fo rthe movie - so we want to get the average and push it into the varible
+            if(await dbContext.Ratings.AnyAsync(x => x.Id == id))
+            {
+                averageVote = await dbContext.Ratings.Where(x => x.MovieId == id)
+                    .AverageAsync(x => x.Rate);
+                if (HttpContext.User.Identity.IsAuthenticated)
+                {
+                    var email = HttpContext.User.Claims.FirstOrDefault(x => x.Type == "email").Value;
+
+                    var user = await userManager.FindByEmailAsync(email);
+
+                    var userId = user.Id;
+                }
+            }
+
+
+
             ///otherwise use automapepr to map the movie to a movie DTO to send back to the front end.
             var dto = mapper.Map<MovieDTO>(movie);
             dto.Actors = dto.Actors.OrderBy(x => x.Order).ToList();
