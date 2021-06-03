@@ -1,9 +1,14 @@
 ﻿
+using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using movieAPI.DTOs;
+using movieAPI.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -23,14 +28,19 @@ namespace movieAPI.Controllers
         private readonly UserManager<IdentityUser> userManager;
         private readonly SignInManager<IdentityUser> signInManager;
         private readonly IConfiguration configuration;
+        private readonly ApplicationDbContext dbContext;
+        private readonly IMapper mapper;
 
         public AccountsController(UserManager<IdentityUser> userManager, 
             SignInManager<IdentityUser> signInManager,
-            IConfiguration configuration)
+            IConfiguration configuration, ApplicationDbContext dbContext,
+            IMapper mapper)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.configuration = configuration;
+            this.dbContext = dbContext;
+            this.mapper = mapper;
         }
 
 
@@ -98,44 +108,44 @@ namespace movieAPI.Controllers
             };
         }
 
+        [HttpGet("listUsers")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult<List<UserDTO>>> GetListUsers([FromQuery]PaginationDTO paginationDTO)
+        {
+            var queryable = dbContext.Users.AsQueryable();
+
+            await HttpContext.InsertParametersPaginationInHeader(queryable);
+
+            var users = await queryable.OrderBy(x => x.Email).Paginate(paginationDTO).ToListAsync();
+
+            return mapper.Map<List<UserDTO>>(users);
+        }
+
+        [HttpPost("makeAdmin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult> MakeAdmin([FromBody] string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            await userManager.AddClaimAsync(user, new Claim("role", "admin"));
+
+            return NoContent();
+        
+        }
+
+        [HttpPost("removeAdmin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "IsAdmin")]
+        public async Task<ActionResult> removeAdmin([FromBody] string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            await userManager.RemoveClaimAsync(user, new Claim("role", "admin"));
+
+            return NoContent();
+
+        }
 
 
 
 
 
-
-
-
-
-
-
-
-            //// GET: api/<AccountsController>
-            //[HttpGet]
-            //public IEnumerable<string> Get()
-            //{
-            //    return new string[] { "value1", "value2" };
-            //}
-
-            //// GET api/<AccountsController>/5
-            //[HttpGet("{id}")]
-            //public string Get(int id)
-            //{
-            //    return "value";
-            //}
-
-
-
-            //// PUT api/<AccountsController>/5
-            //[HttpPut("{id}")]
-            //public void Put(int id, [FromBody] string value)
-            //{
-            //}
-
-            //// DELETE api/<AccountsController>/5
-            //[HttpDelete("{id}")]
-            //public void Delete(int id)
-            //{
-            //}
     }
 }
