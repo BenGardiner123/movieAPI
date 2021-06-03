@@ -33,67 +33,61 @@ namespace movieAPI.Controllers
             this.configuration = configuration;
         }
 
-        // POST api/<AccountsController>
-        [HttpPost]
+
+        [HttpPost("create")]
         public async Task<ActionResult<AuthenticationResponse>> Create(
             [FromBody] UserCredentials userCredentials)
         {
             var user = new IdentityUser { UserName = userCredentials.Email, Email = userCredentials.Email };
             var result = await userManager.CreateAsync(user, userCredentials.Password);
 
-            if(result.Succeeded)
+            if (result.Succeeded)
             {
-                //return the token in here
-                return BuildToken(userCredentials);
+                return await BuildToken(userCredentials);
             }
             else
             {
                 return BadRequest(result.Errors);
             }
-
-
         }
 
-        // POST api/<AccountsController>
-        [HttpPost]
+        [HttpPost("login")]
         public async Task<ActionResult<AuthenticationResponse>> Login(
-            [FromBody] UserCredentials userCredentials)
+              [FromBody] UserCredentials userCredentials)
         {
-            
-            var result = await signInManager.PasswordSignInAsync(userCredentials.Email, userCredentials.Password,
-                isPersistent: false, lockoutOnFailure: false);
+            var result = await signInManager.PasswordSignInAsync(userCredentials.Email,
+                userCredentials.Password, isPersistent: false, lockoutOnFailure: false);
 
             if (result.Succeeded)
             {
-                //return the token in here
-                return BuildToken(userCredentials);
+                return await BuildToken(userCredentials);
             }
             else
             {
-                //dont return anything that might be usefull to a hacker here
                 return BadRequest("Incorrect Login");
             }
-
-
         }
 
 
 
-        private AuthenticationResponse BuildToken(UserCredentials userCredentials)
+        private async Task<AuthenticationResponse> BuildToken(UserCredentials userCredentials)
         {
-            //this info will now geet put into the JWT
-            ///dont ever put sensitive info in here because its not encrypted
-            var userClaims = new List<Claim>()
+            var claims = new List<Claim>()
             {
                 new Claim("email", userCredentials.Email)
             };
+
+            var user = await userManager.FindByNameAsync(userCredentials.Email);
+            var claimsDB = await userManager.GetClaimsAsync(user);
+
+            claims.AddRange(claimsDB);
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["keyjwt"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var expiration = DateTime.UtcNow.AddYears(1);
 
-            var token = new JwtSecurityToken(issuer: null, audience: null, claims: userClaims,
+            var token = new JwtSecurityToken(issuer: null, audience: null, claims: claims,
                 expires: expiration, signingCredentials: creds);
 
             return new AuthenticationResponse()
@@ -115,33 +109,32 @@ namespace movieAPI.Controllers
 
 
 
+            //// GET: api/<AccountsController>
+            //[HttpGet]
+            //public IEnumerable<string> Get()
+            //{
+            //    return new string[] { "value1", "value2" };
+            //}
 
-        //// GET: api/<AccountsController>
-        //[HttpGet]
-        //public IEnumerable<string> Get()
-        //{
-        //    return new string[] { "value1", "value2" };
-        //}
+            //// GET api/<AccountsController>/5
+            //[HttpGet("{id}")]
+            //public string Get(int id)
+            //{
+            //    return "value";
+            //}
 
-        //// GET api/<AccountsController>/5
-        //[HttpGet("{id}")]
-        //public string Get(int id)
-        //{
-        //    return "value";
-        //}
 
-        
 
-        //// PUT api/<AccountsController>/5
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody] string value)
-        //{
-        //}
+            //// PUT api/<AccountsController>/5
+            //[HttpPut("{id}")]
+            //public void Put(int id, [FromBody] string value)
+            //{
+            //}
 
-        //// DELETE api/<AccountsController>/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
+            //// DELETE api/<AccountsController>/5
+            //[HttpDelete("{id}")]
+            //public void Delete(int id)
+            //{
+            //}
     }
 }
