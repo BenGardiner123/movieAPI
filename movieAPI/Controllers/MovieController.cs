@@ -34,6 +34,7 @@ namespace movieAPI.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<HomeDTO>> Get()
         {
             var top = 6;
@@ -81,27 +82,37 @@ namespace movieAPI.Controllers
             var userVote = 0;
 
             //if the program gets inside this if - it means there is votes fo rthe movie - so we want to get the average and push it into the varible
-            if(await dbContext.Ratings.AnyAsync(x => x.Id == id))
+            if (await dbContext.Ratings.AnyAsync(x => x.MovieId == id))
             {
                 averageVote = await dbContext.Ratings.Where(x => x.MovieId == id)
                     .AverageAsync(x => x.Rate);
+
                 if (HttpContext.User.Identity.IsAuthenticated)
                 {
                     var email = HttpContext.User.Claims.FirstOrDefault(x => x.Type == "email").Value;
-
                     var user = await userManager.FindByEmailAsync(email);
-
                     var userId = user.Id;
+
+                    var ratingDb = await dbContext.Ratings.FirstOrDefaultAsync(x => x.MovieId == id
+                    && x.UserId == userId);
+
+                    if (ratingDb != null)
+                    {
+                        userVote = ratingDb.Rate;
+                    }
                 }
             }
-
-
-
             ///otherwise use automapepr to map the movie to a movie DTO to send back to the front end.
             var dto = mapper.Map<MovieDTO>(movie);
+
+            dto.AverageVote = averageVote;
+            dto.UserVote = userVote;
+
             dto.Actors = dto.Actors.OrderBy(x => x.Order).ToList();
             return dto;
         }
+
+
 
         [HttpGet("filter")]
         public async Task<ActionResult<List<MovieDTO>>> Filter([FromQuery] FilterMoviesDTO filterMoviesDTO)
