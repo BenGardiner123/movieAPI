@@ -20,6 +20,7 @@ using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -33,6 +34,8 @@ namespace movieAPI
 
         public Startup(IConfiguration configuration)
         {
+            //clearing the mapping for the claims - dafault value will interefence with the implementaition
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
             Configuration = configuration;
         }
 
